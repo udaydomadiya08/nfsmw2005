@@ -11,7 +11,7 @@ export class Map {
 
     async load(onProgress) {
         return new Promise((resolve) => {
-            this.loader.load('./models/map/map.glb', (gltf) => {
+            this.loader.load('/models/map/city.glb', (gltf) => {
                 const model = gltf.scene;
                 this.scene.add(model);
 

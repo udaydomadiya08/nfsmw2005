@@ -15,7 +15,7 @@ export class Car {
     async load() {
         return new Promise((resolve) => {
             try {
-                this.loader.load('./models/car/FINAL_MODEL_MW.fbx', (fbx) => {
+                this.loader.load('/models/car/FINAL_MODEL_MW.fbx', (fbx) => {
                     this.model = fbx;
                     this.model.scale.set(0.01, 0.01, 0.01);
                     this.model.traverse((child) => {
