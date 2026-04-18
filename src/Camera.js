@@ -68,6 +68,7 @@ export class CameraSystem {
         }
 
         this.camera.position.copy(this.currentPosition);
+        this.camera.up.set(0, 1, 0);
         this.camera.lookAt(this.currentLookAt);
     }
 

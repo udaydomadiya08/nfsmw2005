@@ -79,7 +79,8 @@ export class PoliceAI {
         // Predictive Interception
         // Estimate where player will be in 1 second
         const predictionTime = 1.2;
-        const targetPos = playerPos.clone().add(playerVelocity.clone().scale(predictionTime));
+        // playerPos and playerVelocity are CANNON.Vec3, so we must use .vadd instead of .add
+        const targetPos = playerPos.vadd(playerVelocity.scale(predictionTime));
 
         // Steering Logic
         const localTarget = this.body.pointToLocalFrame(targetPos);
@@ -99,7 +100,7 @@ export class PoliceAI {
             force *= 1.5; // Nitro boost for ramming
         } else if (this.role === 'BLOCKER') {
             // Attempt to get ahead
-            const aheadPos = playerPos.clone().add(playerVelocity.clone().scale(2.0));
+            const aheadPos = playerPos.vadd(playerVelocity.scale(2.0));
             const localAhead = this.body.pointToLocalFrame(aheadPos);
             // Higher priority on getting ahead
         }

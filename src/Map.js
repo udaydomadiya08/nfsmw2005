@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as CANNON from 'cannon-es';
 
 export class Map {
@@ -9,27 +9,46 @@ export class Map {
         this.loader = new GLTFLoader();
     }
 
-    async load(onProgress) {
+     async load(onProgress) {
+        // Create an emergency safety plane at y=0 to prevent falling into the void
+        const groundShape = new CANNON.Plane();
+        const groundBody = new CANNON.Body({ mass: 0 });
+        groundBody.addShape(groundShape);
+        groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // Flat on ground
+        groundBody.position.set(0, 0, 0);
+        this.world.addBody(groundBody);
+        console.log("Map: Safety plane initialized at y=0.");
+
         return new Promise((resolve) => {
-            this.loader.load('/models/map/city.glb', (gltf) => {
+             this.loader.load('./models/map/map.glb', (gltf) => {
                 const model = gltf.scene;
                 this.scene.add(model);
+                
+                // Flip the map right-side up and center it at the world origin
+                model.rotation.x = Math.PI;
+                model.position.set(-931.1, 217.3, 31.7);
+                
+                // CRITICAL: Ensure world matrices are up to date after shifting and rotating
+                model.updateMatrixWorld(true);
+
+                let roadCount = 0;
+                let meshCount = 0;
 
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.receiveShadow = true;
                         child.castShadow = true;
+                        meshCount++;
 
-                        // Create physics colliders for roads and ground only
-                        const name = child.name.toLowerCase();
-                        if (name.includes('road') || name.includes('ground') || name.includes('floor') || name.includes('asphalt')) {
+                        // Universal Collisions: Create colliders for all meshes with significant geometry
+                        const vertexCount = child.geometry.attributes.position.count;
+                        if (vertexCount > 50) {
                             this.createTrimesh(child);
-                        } else if (name.includes('barrier') || name.includes('wall')) {
-                            // Optionally add wall colliders
-                            this.createTrimesh(child);
+                            roadCount++;
                         }
                     }
                 });
+                console.log(`Map: Traversed ${meshCount} meshes. Initialized ${roadCount} definitive physics colliders.`);
 
                 resolve();
             }, (xhr) => {

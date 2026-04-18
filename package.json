@@ -1,18 +1,21 @@
 {
   "name": "nfsmw2005",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "main": "index.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "three": "^0.175.0",
-    "cannon-es": "^0.20.0"
-  },
-  "devDependencies": {
-    "vite": "^5.4.10"
+    "cannon-es": "^0.20.0",
+    "lil-gui": "^0.21.0",
+    "three": "^0.184.0",
+    "vite": "^6.4.2"
   }
 }

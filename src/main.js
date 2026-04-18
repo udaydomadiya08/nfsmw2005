@@ -94,7 +94,10 @@ class Game {
         }, 500);
 
         this.startButton.onclick = () => {
+            window.focus();
             this.startScreen.style.display = 'none';
+            this.blacklistScreen.style.display = 'none';
+            this.race.start();
             this.audio.start();
             this.audio.setMasterVolume(this.settings.settings.masterVolume);
             this.animate();
@@ -172,4 +175,4 @@ class Game {
     }
 }
 
-new Game();
+window.game = new Game();

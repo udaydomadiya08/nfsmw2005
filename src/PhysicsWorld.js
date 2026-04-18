@@ -38,7 +38,7 @@ export class PhysicsWorld {
         const chassisShape = new CANNON.Box(new CANNON.Vec3(1.2, 0.4, 2.5));
         this.chassisBody = new CANNON.Body({ mass: 1200 });
         this.chassisBody.addShape(chassisShape);
-        this.chassisBody.position.set(0, 5, 0);
+        this.chassisBody.position.set(0, 15, 0);
         this.chassisBody.angularDamping = 0.5;
 
         this.vehicle = new CANNON.RaycastVehicle({

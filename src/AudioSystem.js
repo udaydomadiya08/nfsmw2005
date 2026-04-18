@@ -22,8 +22,8 @@ export class AudioSystem {
 
     async load() {
         try {
-            const enginePromise = new Promise(r => this.loader.load('/sounds/engine.mp3', r, null, () => r(null)));
-            const nitroPromise = new Promise(r => this.loader.load('/sounds/nitro.mp3', r, null, () => r(null)));
+            const enginePromise = new Promise(r => this.loader.load('./sounds/engine.mp3', r, null, () => r(null)));
+            const nitroPromise = new Promise(r => this.loader.load('./sounds/nitro.mp3', r, null, () => r(null)));
             
             const [engineBuffer, nitroBuffer] = await Promise.all([enginePromise, nitroPromise]);
             
