@@ -107,7 +107,8 @@ export class Car {
         
         for (let i = 0; i < 4; i++) {
             const wheelMesh = new THREE.Mesh(wheelGeom, wheelMat);
-            wheelMesh.rotation.z = Math.PI / 2;
+            // Pre-rotate GEOMETRY not mesh, so axis aligns with Cannon transform
+            wheelMesh.geometry.rotateZ(Math.PI / 2);
             this.engine.scene.add(wheelMesh);
             this.wheelMeshes.push(wheelMesh);
         }

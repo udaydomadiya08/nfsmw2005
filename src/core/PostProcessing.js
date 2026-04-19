@@ -71,9 +71,9 @@ export class PostProcessing {
         this.composer.addPass(gammaPass);
     }
 
-    render(speed) {
-        // FPS Guard - Keep it for other heavy passes
-        this.checkPerformance();
+    render(speed, delta) {
+        // FPS Guard - Use the passed delta to avoid consuming the main clock delta
+        this.checkPerformance(delta);
         
         // Dynamic Exposure based on speed (simulating wind/tunnel vision)
         if (this.colorPass) {
@@ -83,8 +83,9 @@ export class PostProcessing {
         this.composer.render();
     }
 
-    checkPerformance() {
-        const fps = 1 / this.engine.clock.getDelta();
+    checkPerformance(delta) {
+        if (!delta || delta <= 0) return;
+        const fps = 1 / delta;
         this.fpsList.push(fps);
         if (this.fpsList.length > 60) {
             this.fpsList.shift();

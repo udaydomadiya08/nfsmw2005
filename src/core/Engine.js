@@ -150,6 +150,6 @@ export class Engine {
             this.audio.playNitro();
         }
 
-        this.postProcessing.render(speedKmh);
+        this.postProcessing.render(speedKmh, delta);
     }
 }
