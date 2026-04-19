@@ -13,9 +13,9 @@ export class Car {
         
         // Upgrade Stats
         this.stats = {
-            engineForce: 2500,
-            friction: 1.4,
-            nitroImpulse: 5000
+            engineForce: 4500, // Boosted for punchy acceleration
+            friction: 2.2,     // High base grip for snappy control
+            nitroImpulse: 8000
         };
 
         this.applyUpgrades();
@@ -24,9 +24,9 @@ export class Car {
     initPhysics() {
         // Car Body
         const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 2));
-        this.chassisBody = new CANNON.Body({ mass: 1500 });
-        this.chassisBody.addShape(chassisShape);
-        this.chassisBody.position.set(0, 2, 0);
+        this.chassisBody = new CANNON.Body({ mass: 1200 }); // Lower mass for agility
+        this.chassisBody.addShape(chassisShape, new CANNON.Vec3(0, -0.8, 0)); // LOWER COM (Zero roll)
+        this.chassisBody.position.set(0, 1, 0); 
         this.chassisBody.angularVelocity.set(0, 0, 0);
 
         // Raycast Vehicle
@@ -40,13 +40,13 @@ export class Car {
         const wheelOptions = {
             radius: 0.4,
             directionLocal: new CANNON.Vec3(0, -1, 0),
-            suspensionStiffness: 30,
-            suspensionRestLength: 0.3,
-            frictionSlip: 1.4,
-            dampingRelaxation: 2.3,
-            dampingCompression: 4.4,
-            maxSuspensionForce: 100000,
-            rollInfluence: 0.01,
+            suspensionStiffness: 100, // Stiffer for track feel
+            suspensionRestLength: 0.2,
+            frictionSlip: 2.2,
+            dampingRelaxation: 4.3,
+            dampingCompression: 8.4,
+            maxSuspensionForce: 500000,
+            rollInfluence: 0.0, // Eliminate roll
             axleLocal: new CANNON.Vec3(1, 0, 0),
             chassisConnectionPointLocal: new CANNON.Vec3()
         };
@@ -145,10 +145,9 @@ export class Car {
         // Arcade Control Forces
         const speedKmh = Math.abs(this.chassisBody.velocity.length() * 3.6);
         
-        // 1. Speed-sensitive Steering
-        // At high speed, steering is less sensitive to maintain stability
-        const steerReduction = Math.max(0.2, 1 - (speedKmh / 200)); 
-        const maxSteerVal = 0.5 * steerReduction;
+        // 1. Dynamic Steering Curve (Snappy at all speeds)
+        const steerReduction = Math.max(0.4, 1 - (speedKmh / 250)); 
+        const maxSteerVal = 0.6 * steerReduction;
         
         // 2. Artificial Downforce
         // Helps the car stay glued to the road at high speeds

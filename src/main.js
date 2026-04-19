@@ -4,6 +4,8 @@ import { InputSystem } from './systems/InputSystem.js';
 import { Car } from './entities/Car.js';
 import { PoliceAI } from './entities/PoliceAI.js';
 import { RivalAI } from './entities/RivalAI.js';
+import { NPCVehicle } from './entities/NPCVehicle.js';
+import * as THREE from 'three';
 
 function bootstrap() {
     const engine = new Engine();
@@ -31,6 +33,20 @@ function bootstrap() {
         engine.ui.blacklistUI.toggle();
         engine.raceSystem.startRace(rival);
     };
+
+    // Spawn Traffic (50 NPC Cars)
+    for (let i = 0; i < 50; i++) {
+        const x = (Math.random() - 0.5) * 800;
+        const z = (Math.random() - 0.5) * 800;
+        const traffic = new NPCVehicle(engine, new THREE.Vector3(x, 1, z));
+        engine.trafficUnits.push(traffic);
+    }
+
+    // Mission Controls
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyM') engine.missionSystem.startMission('Speedtrap');
+        if (e.code === 'KeyT') engine.missionSystem.startMission('Tollbooth');
+    });
 
     // Police Spawning Logic based on Heat
     setInterval(() => {

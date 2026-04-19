@@ -5,10 +5,13 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
-const MotionBlurShader = {
+const ColorCorrectionShader = {
     uniforms: {
         'tDiffuse': { value: null },
-        'strength': { value: 0.0 }
+        'exposure': { value: 1.0 },
+        'contrast': { value: 1.2 },
+        'saturation': { value: 1.1 },
+        'tint': { value: new THREE.Color(1.1, 1.0, 0.8) } // MW2005 Warm/Orange Tint
     },
     vertexShader: `
         varying vec2 vUv;
@@ -19,17 +22,19 @@ const MotionBlurShader = {
     `,
     fragmentShader: `
         uniform sampler2D tDiffuse;
-        uniform float strength;
+        uniform float exposure;
+        uniform float contrast;
+        uniform float saturation;
+        uniform vec3 tint;
         varying vec2 vUv;
         void main() {
-            vec4 color = vec4(0.0);
-            float total = 0.0;
-            for (float i = -5.0; i <= 5.0; i++) {
-                float offset = i * 0.001 * strength;
-                color += texture2D(tDiffuse, vUv + vec2(offset, 0.0));
-                total += 1.0;
-            }
-            gl_FragColor = color / total;
+            vec4 tex = texture2D(tDiffuse, vUv);
+            vec3 color = tex.rgb * exposure;
+            color = (color - 0.5) * contrast + 0.5;
+            float luma = dot(color, vec3(0.299, 0.587, 0.114));
+            color = mix(vec3(luma), color, saturation);
+            color *= tint;
+            gl_FragColor = vec4(color, tex.a);
         }
     `
 };
@@ -57,9 +62,9 @@ export class PostProcessing {
         );
         this.composer.addPass(bloomPass);
 
-        // Motion Blur Pass
-        this.motionBlurPass = new ShaderPass(MotionBlurShader);
-        this.composer.addPass(this.motionBlurPass);
+        // Color Correction & Tint (Pure Clarity)
+        this.colorPass = new ShaderPass(ColorCorrectionShader);
+        this.composer.addPass(this.colorPass);
 
         // Gamma correction
         const gammaPass = new ShaderPass(GammaCorrectionShader);
@@ -67,11 +72,12 @@ export class PostProcessing {
     }
 
     render(speed) {
-        // FPS Guard for Motion Blur
+        // FPS Guard - Keep it for other heavy passes
         this.checkPerformance();
         
-        if (this.motionBlurPass) {
-            this.motionBlurPass.uniforms.strength.value = this.motionBlurEnabled ? Math.min(speed / 10, 2.0) : 0;
+        // Dynamic Exposure based on speed (simulating wind/tunnel vision)
+        if (this.colorPass) {
+            this.colorPass.uniforms.exposure.value = 1.0 + (speed / 200);
         }
         
         this.composer.render();

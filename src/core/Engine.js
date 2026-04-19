@@ -8,6 +8,8 @@ import { BlacklistManager } from './BlacklistManager.js';
 import { CameraSystem } from '../systems/CameraSystem.js';
 import { BlacklistUI } from '../systems/BlacklistUI.js';
 import { AudioSystem } from '../systems/AudioSystem.js';
+import { MissionSystem } from '../systems/MissionSystem.js';
+import { NPCVehicle } from '../entities/NPCVehicle.js';
 
 export class Engine {
     constructor() {
@@ -29,6 +31,7 @@ export class Engine {
         this.heatManager = new HeatManager();
         this.blacklistManager = new BlacklistManager(this);
         this.audio = new AudioSystem();
+        this.missionSystem = new MissionSystem(this);
         
         this.ui = {
             blacklistUI: new BlacklistUI(this, this.blacklistManager)
@@ -36,6 +39,7 @@ export class Engine {
         
         this.policeUnits = [];
         this.rivalUnits = [];
+        this.trafficUnits = [];
         this.entities = [];
         
         window.addEventListener('resize', () => this.onWindowResize());
@@ -128,6 +132,12 @@ export class Engine {
         this.rivalUnits.forEach(unit => {
             if (unit.update) unit.update(delta, this.entities[0]);
         });
+        
+        this.trafficUnits.forEach(unit => {
+            if (unit.update) unit.update(delta);
+        });
+
+        this.missionSystem.update(delta);
 
         // Speed for Audio & Post-processing
         const speedKmh = this.entities[0] ? this.entities[0].chassisBody.velocity.length() * 3.6 : 0;
