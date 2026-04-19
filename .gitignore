@@ -13,6 +13,7 @@ Thumbs.db
 assets_temp/
 *.mp3
 nfs-u2-city-part-85mb-glb/
+archive/
 
 # Debug
 npm-debug.log*

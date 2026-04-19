@@ -3,64 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaVision - NFS Prototype</title>
-    <link rel="stylesheet" href="./src/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <title>NFS Most Wanted | Rebirth</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap');
+        
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Outfit', sans-serif; color: white; }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        /* HUD Layout */
+        #hud {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .bottom-row { display: flex; justify-content: space-between; align-items: flex-end; }
+
+        /* Heat UI */
+        #heat-container {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-left: 5px solid #ff3e3e;
+            border-radius: 4px;
+        }
+        #heat-level { font-size: 32px; font-weight: 900; color: #ff3e3e; margin-right: 10px; }
+        #heat-label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #aaa; }
+        #heat-progress-bg { width: 150px; height: 4px; background: #222; margin-top: 10px; border-radius: 2px; overflow: hidden; }
+        #heat-bar { width: 0%; height: 100%; background: #ff3e3e; transition: width 0.3s; }
+
+        /* Speedo */
+        .speedo { text-align: right; }
+        #speed { font-size: 84px; font-weight: 900; line-height: 0.8; }
+        .unit { font-size: 24px; color: #ff3e3e; font-weight: 400; }
+
+        /* Nitro */
+        #nitro-container { width: 300px; text-align: left; }
+        #nitro-label { font-size: 12px; font-weight: 900; letter-spacing: 3px; margin-bottom: 8px; color: #00f2ff; }
+        #nitro-bg { width: 100%; height: 12px; background: rgba(0,242,255,0.1); border: 1px solid rgba(0,242,255,0.3); border-radius: 2px; overflow: hidden; }
+        #nitro-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #00f2ff, #0072ff); box-shadow: 0 0 15px #00f2ff; }
+
+        /* Score & Wins */
+        #stats { text-align: left; background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 8px; }
+        #score { font-size: 24px; font-weight: 900; color: #fff; }
+        #wins { font-size: 14px; color: #00ff00; text-transform: uppercase; }
+
+        /* Start Button */
+        #start-btn {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 60px;
+            background: #ff3e3e;
+            color: white;
+            font-weight: 900;
+            font-size: 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(255,62,62,0.4);
+            transition: all 0.3s;
+        }
+        #start-btn:hover { background: #ff1a1a; transform: translate(-50%, -52%); }
+        #start-btn.hidden { opacity: 0; pointer-events: none; }
+    </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="loader-content">
-            <h1>NFS MOST WANTED</h1>
-            <div class="progress-bar-container">
-                <div id="progress-bar"></div>
+    <div id="canvas-container"></div>
+    
+    <div id="hud">
+        <div class="top-row">
+            <div id="heat-container">
+                <span id="heat-level">X1</span>
+                <span id="heat-label">Wanted Level</span>
+                <div id="heat-progress-bg"><div id="heat-bar"></div></div>
             </div>
-            <p id="loading-status">TIP: Drifting with SPACE refills Nitro faster.</p>
-        </div>
-    </div>
-
-    <div id="notifications-container"></div>
-    <div id="speed-blur-overlay"></div>
-
-    <div id="ui-overlay">
-        <div id="top-left-stats">
-            <div id="bounty-display">BOUNTY: <span id="total-bounty">0</span></div>
-            <div id="cash-display">CASH: $<span id="cash-value">5000</span></div>
-            <div id="settings-hint" style="font-size: 0.7rem; opacity: 0.5; margin-top: 1rem;">[ESC] SETTINGS | [U] UPGRADES | [B] BLACKLIST</div>
+            <div id="stats">
+                <div id="score">Score: 0</div>
+                <div id="wins">Wins: 0</div>
+            </div>
         </div>
 
-        <div id="pursuit-container">
-            <div id="heat-level">HEAT: 1.0</div>
-            <div id="pursuit-status" class="idle">IDLE</div>
-        </div>
-
-        <div id="speedometer">
-            <div class="speed-value" id="speed-value">0</div>
-            <div class="speed-unit">KM/H</div>
-            <div class="gear-indicator" id="gear-indicator">1</div>
+        <div class="bottom-row">
             <div id="nitro-container">
-                <div id="nitro-bar"></div>
+                <div id="nitro-label">NOS SYSTEM</div>
+                <div id="nitro-bg"><div id="nitro-bar"></div></div>
+            </div>
+            <div class="speedo">
+                <div id="speed">0</div>
+                <div class="unit">KM/H</div>
             </div>
         </div>
     </div>
 
-    <!-- Blacklist Screen -->
-    <div id="blacklist-screen">
-        <div class="blacklist-header">
-            <button id="close-blacklist">✖</button>
-            <h1>THE BLACKLIST</h1>
-        </div>
-        <div id="blacklist-list"></div>
-    </div>
+    <button id="start-btn" onclick="this.classList.add('hidden'); window.startRace()">START ENGINE</button>
 
-    <div id="start-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center;">
-        <h2 style="font-style: italic; color: #ff8c00; margin-bottom: 2rem;">READY TO RACE?</h2>
-        <button id="start-button" style="background: #ff8c00; color: black; border: none; padding: 1.5rem 4rem; font-size: 1.5rem; font-weight: 900; cursor: pointer; transform: skew(-10deg);">START ENGINE</button>
-    </div>
-
-    <div id="container"></div>
-
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
