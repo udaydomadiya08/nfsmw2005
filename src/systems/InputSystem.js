@@ -1,4 +1,4 @@
-export class InputHandler {
+export class InputSystem {
     constructor() {
         this.keys = {
             forward: false,
